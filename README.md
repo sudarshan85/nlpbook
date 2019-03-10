@@ -1,1 +1,1 @@
-# nlpbook
+# Natural Language Processing with PyTorchThis repository contains reimplimentation of code that accompanies the book ["Natural LanguageProcessing With PyTorch"](http://shop.oreilly.com/product/0636920063445.do)
