@@ -106,7 +106,7 @@ class Vocabulary(object):
     return {'token2idx': self._token2idx, 'add_unk': self._add_unk, 'unk_token': self._unk}
 
   @classmethod
-  def from_serializable(cls, contents: dict) -> Vocabulary:
+  def from_serializable(cls, contents: dict):
     """
       Instantiates a vocabulary object from a serialized dictionary
     """

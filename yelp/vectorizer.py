@@ -6,9 +6,9 @@ import string
 
 from collections import Counter
 
-from vocab import Vocabulary
+from .vocab import Vocabulary
 
-class ReviewVectorizer(object):
+class Vectorizer(object):
   """
     The Vectorizer which coordinates the vocabularies and puts them to use
   """
@@ -44,16 +44,16 @@ class ReviewVectorizer(object):
 
 
   @classmethod
-  def from_dataframe(cls, review_df: pd.DataFrame, cutoff: int = 25) -> ReviewVectorizer:
+  def from_dataframe(cls, review_df: pd.DataFrame, cutoff: int = 25):
     """
-      Instantiates a ReviewVectorizer object from the dataset dataframe
+      Instantiates a Vectorizer object from the dataset dataframe
 
       Args:
         review_df: the review dataset
         cutoff   : the parameter for frequency-based filtering
 
       Returns:
-        an instance of the ReviewVectorizer
+        an instance of the Vectorizer
     """
 
     review_vocab = Vocabulary(add_unk=True)
@@ -77,9 +77,9 @@ class ReviewVectorizer(object):
     return cls(review_vocab, rating_vocab)
 
   @classmethod
-  def from_serializable(cls, contents: dict) -> ReviewVectorizer:
+  def from_serializable(cls, contents: dict):
     """
-      Instantiates a ReviewVectorizer from a serializable dictionary
+      Instantiates a Vectorizer from a serializable dictionary
     """
     review_vocab = Vocabulary.from_serializable(contents['review_vocab'])
     rating_vocab = Vocabulary.from_serializable(contents['rating_vocab'])
