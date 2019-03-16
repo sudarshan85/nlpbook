@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import string
 
+import pdb
 from collections import Counter
 
 from .vocab import Vocabulary
@@ -18,9 +19,8 @@ class Vectorizer(object):
         review_vocab: maps words to integers
         rating_vocab: maps class labels to integers
     """
-
-    self._review_vocab = review_vocab
-    self._rating_vocab = rating_vocab
+    self.review_vocab = review_vocab
+    self.rating_vocab = rating_vocab
 
 
   def vectorize(self, review: str) -> np.ndarray:
@@ -33,12 +33,11 @@ class Vectorizer(object):
       Returns:
         one_hot: the collapsed one-hot encoding
     """
-
-    one_hot = np.zeros(len(self._review_vocab), dtype=np.float32)
+    one_hot = np.zeros(len(self.review_vocab), dtype=np.float32)
 
     for token in review.split(' '):
       if token not in string.punctuation:
-        one_hot[self._review_vocab.lookup_token(token)] = 1
+        one_hot[self.review_vocab.lookup_token(token)] = 1
 
     return one_hot
 
@@ -55,7 +54,6 @@ class Vectorizer(object):
       Returns:
         an instance of the Vectorizer
     """
-
     review_vocab = Vocabulary(add_unk=True)
     rating_vocab = Vocabulary(add_unk=False)
 
@@ -90,9 +88,10 @@ class Vectorizer(object):
     """
       Create the serializable dictionary for caching
     """
+    pdb.set_trace()
     return {
-        'review_vocab': self._review_vocab.to_serializeable(),
-        'rating_vocab': self._rating_vocab.to_serializeable()
+        'review_vocab': self.review_vocab.to_serializeable(),
+        'rating_vocab': self.rating_vocab.to_serializeable()
         }
 
 
