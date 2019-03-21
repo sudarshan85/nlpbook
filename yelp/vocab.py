@@ -5,6 +5,7 @@
   Code can be found: http://bit.ly/2XYExLh
 """
 
+import pdb
 from typing import Dict, List
 
 class Vocabulary(object):
@@ -31,7 +32,7 @@ class Vocabulary(object):
     self._add_unk = add_unk
     self._unk = unk_token
 
-    self._len = 0
+    self._len = len(self._token2idx)
 
     self.unk_idx = -1
     if add_unk:
@@ -110,6 +111,7 @@ class Vocabulary(object):
     """
       Instantiates a vocabulary object from a serialized dictionary
     """
+    # pdb.set_trace()
     return cls(**contents)
 
   def __len__(self) -> int:

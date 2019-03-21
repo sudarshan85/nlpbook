@@ -3,10 +3,9 @@
 import json
 import pandas as pd
 
-from pdb import set_trace
 from torch.utils.data import Dataset
 
-from vectorizer import Vectorizer
+from .vectorizer import Vectorizer
 
 class ProjectDataset(Dataset):
   """
@@ -112,7 +111,6 @@ class ProjectDataset(Dataset):
         a dictionary holding the data point's features (x_data) and label
         (y_target)
     """
-    # set_trace()
     row = self._target_df.iloc[idx]
     review_vector = self._vectorizer.vectorize(row['review'])
     rating_idx = self._vectorizer.rating_vocab.lookup_token(row['rating'])

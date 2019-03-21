@@ -7,7 +7,7 @@ import string
 import pdb
 from collections import Counter
 
-from vocab import Vocabulary
+from .vocab import Vocabulary
 
 class Vectorizer(object):
   """
@@ -88,7 +88,6 @@ class Vectorizer(object):
     """
       Create the serializable dictionary for caching
     """
-    pdb.set_trace()
     return {
         'review_vocab': self.review_vocab.to_serializeable(),
         'rating_vocab': self.rating_vocab.to_serializeable()
