@@ -113,11 +113,12 @@ class ProjectDataset(Dataset):
         (y_target)
     """
     row = self._target_df.iloc[idx]
-    review_vector = self._vectorizer.vectorize(row['review'])
-    rating_idx = np.asarray(self._vectorizer.rating_vocab.lookup_token(row['rating']))
+    review_vector = np.asarray(self._vectorizer.vectorize(row['review']), dtype=np.float32)
+    rating_idx = np.asarray(self._vectorizer.rating_vocab.lookup_token(row['rating']),
+        dtype=np.float32)
 
     # return {'x_data': review_vector, 'y_target': rating_idx}
-    return (review_vector.astype(np.float32), rating_idx.astype(np.float32))
+    return (review_vector, rating_idx)
 
   def get_num_batches(self, batch_size: int) -> int:
     """
