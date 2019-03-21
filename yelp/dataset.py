@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+import numpy as np
 import pandas as pd
 
 from torch.utils.data import Dataset
@@ -113,9 +114,10 @@ class ProjectDataset(Dataset):
     """
     row = self._target_df.iloc[idx]
     review_vector = self._vectorizer.vectorize(row['review'])
-    rating_idx = self._vectorizer.rating_vocab.lookup_token(row['rating'])
+    rating_idx = np.asarray(self._vectorizer.rating_vocab.lookup_token(row['rating']))
 
-    return {'x_data': review_vector, 'y_target': rating_idx}
+    # return {'x_data': review_vector, 'y_target': rating_idx}
+    return (review_vector.astype(np.float32), rating_idx.astype(np.float32))
 
   def get_num_batches(self, batch_size: int) -> int:
     """
