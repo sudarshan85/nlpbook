@@ -12,39 +12,13 @@ class ProjectDataset(Dataset):
   """
     DataSet derived from PyTorch's Dataset class
   """
-  def __init__(self, review_df: pd.DataFrame, vectorizer: Vectorizer) -> None:
-    self._review_df = review_df
+  def __init__(self, df: pd.DataFrame, vectorizer: Vectorizer=None) -> None:
+    self._df = df
+    self._df_size = len(self._df)
     self._vectorizer = vectorizer
 
-    self._train_df = self._review_df[self._review_df['split'] == 'train']
-    self._train_size = len(self._train_df)
-
-    self._val_df = self._review_df[self._review_df['split'] == 'val']
-    self._val_size = len(self._val_df)
-
-    self._test_df = self._review_df[self._review_df['split'] == 'test']
-    self._test_size = len(self._test_df)
-
-    self._lookup_dict = {
-          'train': (self._train_df, self._train_size),
-          'val': (self._val_df, self._val_size),
-          'test': (self._test_df, self._test_size)
-        }
-
-    self.set_split('train')
-
-  def set_split(self, split: str='train') -> None:
-    """
-      Selects the splits in the dataset using the split column in the dataframe
-
-      Args:
-        split: one of 'train', 'val', 'test'
-    """
-    self._target_split = split
-    self._target_df, self._target_size = self._lookup_dict[split]
-
   @classmethod
-  def load_data_and_create_vectorizer(cls, review_csv: str):
+  def load_data_and_create_vectorizer(cls, df: pd.DataFrame):
     """
       Load dataset and create a new Vectorizer object
 
@@ -54,14 +28,10 @@ class ProjectDataset(Dataset):
       Returns:
         an instance of Vectorizer
     """
-
-    review_df = pd.read_csv(review_csv)
-    train_df = review_df[review_df['split'] == 'train']
-    return cls(review_df, Vectorizer.from_dataframe(train_df))
-
+    return cls(df, Vectorizer.from_dataframe(df))
 
   @classmethod
-  def load_data_and_vectorizer(cls, review_csv: str, vectorizer_path: str):
+  def load_data_and_vectorizer(cls, df: pd.DataFrame, vectorizer_path: str):
     """
       Load dataset and the corresponding vectorizer. Used in the case the
       vectorizer has been cached for re-use
@@ -70,9 +40,8 @@ class ProjectDataset(Dataset):
         review_csv: path to the dataset
         vectorizer_path: path to the saved vectorizer file
     """
-    review_df = pd.read_csv(review_csv)
     vectorizer = cls.load_vectorizer(vectorizer_path)
-    return cls(review_df, vectorizer)
+    return cls(df, vectorizer)
 
   @staticmethod
   def load_vectorizer(vectorizer_path: str) -> Vectorizer:
@@ -99,7 +68,7 @@ class ProjectDataset(Dataset):
     return self._vectorizer
 
   def __len__(self) -> int:
-    return self._target_size
+    return self._df_size
 
   def __getitem__(self, idx: int) -> dict:
     """
@@ -111,18 +80,11 @@ class ProjectDataset(Dataset):
       Returns:
         a tuple holding the data point's features and label target
     """
-      # Returns:
-        # a dictionary holding the data point's features (x_data) and label
-        # (y_target)
-    row = self._target_df.iloc[idx]
-    # review_vector = np.asarray(self._vectorizer.vectorize(row['review']), dtype=np.float32)
-    # rating_idx = np.asarray(self._vectorizer.rating_vocab.lookup_token(row['rating']),
-        # dtype=np.float32)
-    # return (review_vector, rating_idx)
-    review_vector = self._vectorizer.vectorize(row['review'])
-    rating_idx = self._vectorizer.rating_vocab.lookup_token(row['rating'])
-
-    return {'x_data': review_vector, 'y_target': rating_idx}
+    row = self._df.iloc[idx]
+    review_vector = np.asarray(self._vectorizer.vectorize(row['review']), dtype=np.float32)
+    rating_idx = np.asarray(self._vectorizer.rating_vocab.lookup_token(row['rating']),
+        dtype=np.float32)
+    return (review_vector, rating_idx)
 
   def get_num_batches(self, batch_size: int) -> int:
     """
