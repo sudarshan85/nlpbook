@@ -8,6 +8,7 @@ import pdb
 from collections import Counter
 
 from .vocab import Vocabulary
+from .args import args
 
 class Vectorizer(object):
   """
@@ -43,7 +44,7 @@ class Vectorizer(object):
 
 
   @classmethod
-  def from_dataframe(cls, review_df: pd.DataFrame, cutoff: int = 25):
+  def from_dataframe(cls, review_df: pd.DataFrame, cutoff: int = args.frequency_cutoff):
     """
       Instantiates a Vectorizer object from the dataset dataframe
 
