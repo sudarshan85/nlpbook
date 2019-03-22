@@ -109,16 +109,20 @@ class ProjectDataset(Dataset):
         idx: the index to the data point
 
       Returns:
-        a dictionary holding the data point's features (x_data) and label
-        (y_target)
+        a tuple holding the data point's features and label target
     """
+      # Returns:
+        # a dictionary holding the data point's features (x_data) and label
+        # (y_target)
     row = self._target_df.iloc[idx]
-    review_vector = np.asarray(self._vectorizer.vectorize(row['review']), dtype=np.float32)
-    rating_idx = np.asarray(self._vectorizer.rating_vocab.lookup_token(row['rating']),
-        dtype=np.float32)
+    # review_vector = np.asarray(self._vectorizer.vectorize(row['review']), dtype=np.float32)
+    # rating_idx = np.asarray(self._vectorizer.rating_vocab.lookup_token(row['rating']),
+        # dtype=np.float32)
+    # return (review_vector, rating_idx)
+    review_vector = self._vectorizer.vectorize(row['review'])
+    rating_idx = self._vectorizer.rating_vocab.lookup_token(row['rating'])
 
-    # return {'x_data': review_vector, 'y_target': rating_idx}
-    return (review_vector, rating_idx)
+    return {'x_data': review_vector, 'y_target': rating_idx}
 
   def get_num_batches(self, batch_size: int) -> int:
     """
