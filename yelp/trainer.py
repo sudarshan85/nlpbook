@@ -68,7 +68,7 @@ class YelpTrainer(object):
     train_loss = f"{self.train_eval.state.metrics['loss']:0.3f}"
     train_acc = f"{self.train_eval.state.metrics['accuracy']:0.3f}"
     valid_loss = f"{self.valid_eval.state.metrics['loss']:0.3f}"
-    valid_acc = f"{self.valid_eval.state.metrics['acc']:0.3f}"
+    valid_acc = f"{self.valid_eval.state.metrics['accuracy']:0.3f}"
 
     self.pbar.log_message(f"Epoch: {epoch}")
     self.pbar.log_message(f"Training - Loss: {train_loss}, Accuracy: {train_acc}")

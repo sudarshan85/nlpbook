@@ -7,8 +7,8 @@ import string
 import pdb
 from collections import Counter
 
-from .vocab import Vocabulary
-from .args import args
+from vocab import Vocabulary
+from args import args
 
 class Vectorizer(object):
   """
