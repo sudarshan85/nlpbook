@@ -125,4 +125,3 @@ class Vocabulary(object):
       Returns string with metadata about vocabulary
     """
     return f'<Vocabulary (size={self._len})>'
-

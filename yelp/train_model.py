@@ -13,10 +13,10 @@ from torch.utils.data import DataLoader
 from ignite.metrics import Accuracy, Loss
 from ignite.contrib.handlers import ProgressBar
 
-from args import args
-from trainer import YelpTrainer
-from model import Classifier
-from dataset import ProjectDataset
+from yelp.args import args
+from yelp.trainer import YelpTrainer
+from yelp.model import Classifier
+from yelp.dataset import ProjectDataset
 
 path = Path('../data/yelp')
 
@@ -66,5 +66,3 @@ if __name__=='__main__':
   dt = t2 - t1
   print(f"Finished at {t2.strftime('%Y-%m-%d %H:%M:%S')}")
   print(f"Took {dt.days} days, {dt.seconds//3600} hours, {(dt.seconds//60)%60} minutes")
-
-
