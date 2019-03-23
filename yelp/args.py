@@ -3,7 +3,7 @@
 from argparse import Namespace
 
 args = Namespace(
-    frequency_cutoff=25,
+    frequency_cutoff=25, # minimum frequency for words to be counted
     workdir_name='scratch',
     vectorizer_fname='vectorizer.json',
     batch_size=128,
@@ -13,5 +13,7 @@ args = Namespace(
     device='cuda:3',
     sample_file='reviews_with_splits_lite.csv',
     checkpointer_prefix='yelp',
-    checkpointer_name='classifier'
+    checkpointer_name='classifier',
+    save_every=2, # save model every n epochs
+    save_total=5 # have total of n models saved
     )
