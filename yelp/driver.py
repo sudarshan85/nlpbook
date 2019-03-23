@@ -40,8 +40,8 @@ def get_dataloaders(review_csv):
   return train_dl, vectorizer, val_dl
 
 if __name__=='__main__':
-  args.save_dir = path/args.lite_dir
-  review_csv = path/args.lite_file
+  args.save_dir = path/args.full_dir
+  review_csv = path/args.full_file
 
   vectorizer_path = args.save_dir/args.vectorizer_fname
   train_dl, vectorizer, val_dl = get_dataloaders(review_csv)
@@ -55,7 +55,6 @@ if __name__=='__main__':
 
   pbar = ProgressBar(persist=True)
   metrics = {'accuracy': Accuracy(bce_logits_wrapper), 'loss': Loss(loss_func)}
-  args.num_epochs=5
 
   yelp_trainer = YelpTrainer(classifier, optimizer, loss_func, train_dl, val_dl, args, pbar,
       metrics)
