@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import json
+import torch
 import numpy as np
 import pandas as pd
 
@@ -16,6 +17,14 @@ class ProjectDataset(Dataset):
     self.df = df
     self.df_size = len(self.df)
     self._vectorizer = vectorizer
+
+    # class weights are the inverse of the frequencies of each class
+    # this is for cross entropy loss
+    # class_counts = df['nationality'].value_counts().to_dict()
+    # sorted_counts = sorted(class_counts.items(), key=lambda x:
+        # self._vectorizer.nationality_vocab.lookup_token(x[0]))
+    # freq = [count for _, count in sorted_counts]
+    # self.class_weights = 1.0/torch.tensor(freq, dtype=torch.float32)
 
   @classmethod
   def load_data_and_create_vectorizer(cls, df: pd.DataFrame):
@@ -70,7 +79,7 @@ class ProjectDataset(Dataset):
   def __len__(self) -> int:
     return self.df_size
 
-  def __getitem__(self, idx: int) -> dict:
+  def __getitem__(self, idx: int) -> tuple:
     """
       The primary entry point method for PyTorch datasets
 
