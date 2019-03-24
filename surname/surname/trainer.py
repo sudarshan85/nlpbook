@@ -7,7 +7,7 @@ from ignite.engine import Events, create_supervised_trainer, create_supervised_e
 from ignite.metrics import RunningAverage
 from ignite.handlers import EarlyStopping, ModelCheckpoint
 
-class YelpTrainer(object):
+class Trainer(object):
   def __init__(self, model, optimizer, loss_fn, train_dl, valid_dl, args, pbar, metrics={}):
     # retrieve required params from args
     self.save_dir = args.save_dir
@@ -35,8 +35,8 @@ class YelpTrainer(object):
     # setup early stopping and checkpointer
     early_stopping = EarlyStopping(patience=self.patience, score_function=self.score_fn,
         trainer=self.trainer)
-    checkpointer = ModelCheckpoint(self.save_dir, self.prefix, require_empty=False, save_interval=2, n_saved=5,
-        save_as_state_dict=True)
+    checkpointer = ModelCheckpoint(self.save_dir, self.prefix, require_empty=False, save_interval=2,
+        n_saved=5, save_as_state_dict=True)
 
     # add all the event handlers
     self.trainer.add_event_handler(Events.STARTED, self.open_csv)
