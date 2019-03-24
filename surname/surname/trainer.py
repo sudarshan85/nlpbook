@@ -8,9 +8,9 @@ from ignite.metrics import RunningAverage
 from ignite.handlers import EarlyStopping, ModelCheckpoint
 
 class Trainer(object):
-  def __init__(self, model, optimizer, loss_fn, train_dl, valid_dl, args, pbar, metrics={}):
+  def __init__(self, model, optimizer, loss_fn, train_dl, valid_dl, path, args, pbar, metrics={}):
     # retrieve required params from args
-    self.save_dir = args.save_dir
+    self.model_dir = path/args.model_dir
     self.patience = args.early_stopping_criteria
     self.n_epochs = args.num_epochs
     self.device = args.device
@@ -26,7 +26,7 @@ class Trainer(object):
     self.train_dl = train_dl
     self.valid_dl = valid_dl
     self.pbar = pbar
-    self.metrics_file = Path(self.save_dir/'metrics.csv')
+    self.metrics_file = path/'metrics.csv'
 
     # set loss to be shown in progress bar
     RunningAverage(output_transform=lambda x: x).attach(self.trainer, 'loss')
@@ -35,7 +35,7 @@ class Trainer(object):
     # setup early stopping and checkpointer
     early_stopping = EarlyStopping(patience=self.patience, score_function=self.score_fn,
         trainer=self.trainer)
-    checkpointer = ModelCheckpoint(self.save_dir, self.prefix, require_empty=False, save_interval=2,
+    checkpointer = ModelCheckpoint(self.model_dir, self.prefix, require_empty=False, save_interval=2,
         n_saved=5, save_as_state_dict=True)
 
     # add all the event handlers
