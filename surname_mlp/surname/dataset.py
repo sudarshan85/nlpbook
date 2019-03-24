@@ -92,7 +92,7 @@ class ProjectDataset(Dataset):
     row = self.df.iloc[idx]
     surname_vector = np.asarray(self._vectorizer.vectorize(row['surname']), dtype=np.float32)
     nationality_idx = np.asarray(self._vectorizer.nationality_vocab.lookup_token(
-      row['nationality']), dtype=np.float32)
+      row['nationality']), dtype=np.int64)
     return (surname_vector, nationality_idx)
 
   def get_num_batches(self, batch_size: int) -> int:
