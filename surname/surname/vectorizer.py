@@ -33,7 +33,7 @@ class Vectorizer(object):
     one_hot = np.zeros(len(self.surname_vocab), dtype=np.float32)
 
     for token in surname:
-      one_hot[self.surname_vocab.lookup_token(token)] = 1
+      one_hot[self.surname_vocab.lookup_token(token)] += 1
 
     return one_hot
 
