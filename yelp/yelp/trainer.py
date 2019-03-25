@@ -22,7 +22,6 @@ class YelpTrainer(object):
     self.optimizer = model_bundle['optimizer']
     self.scheduler = model_bundle['scheduler']
     self.loss_fn = model_bundle['loss_fn']
-
     self.train_dl = data_bundle['train_dl']
     self.val_dl = data_bundle['val_dl']
 
