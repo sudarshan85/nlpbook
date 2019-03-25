@@ -8,7 +8,7 @@ from ignite.metrics import RunningAverage
 from ignite.handlers import EarlyStopping, ModelCheckpoint
 
 class YelpTrainer(object):
-  def __init__(self, model, optimizer, loss_fn, train_dl, valid_dl, args, pbar, metrics={}):
+  def __init__(self, model_bundle, data_bundle, args, pbar, metrics={}):
     # retrieve required params from args
     self.save_dir = args.save_dir
     self.patience = args.early_stopping_criteria
@@ -17,14 +17,21 @@ class YelpTrainer(object):
     self.prefix = args.checkpointer_prefix
     self.model_name = args.checkpointer_name
 
-    # create trainers and evaluators
-    self.trainer = create_supervised_trainer(model, optimizer, loss_fn, device=self.device)
-    self.train_eval = create_supervised_evaluator(model,  metrics=metrics, device=self.device)
-    self.valid_eval = create_supervised_evaluator(model,  metrics=metrics, device=self.device)
+    # get model and data details
+    self.module = model_bundle['module']
+    self.optimizer = model_bundle['optimizer']
+    self.scheduler = model_bundle['scheduler']
+    self.loss_fn = model_bundle['loss_fn']
 
-    # save the dataloaders and progress bar
-    self.train_dl = train_dl
-    self.valid_dl = valid_dl
+    self.train_dl = data_bundle['train_dl']
+    self.val_dl = data_bundle['val_dl']
+
+    # create trainers and evaluators
+    self.trainer = create_supervised_trainer(self.module, self.optimizer, self.loss_fn,
+        device=self.device)
+    self.train_eval = create_supervised_evaluator(self.module,  metrics=metrics, device=self.device)
+    self.valid_eval = create_supervised_evaluator(self.module,  metrics=metrics, device=self.device)
+
     self.pbar = pbar
     self.metrics_file = Path(self.save_dir/'metrics.csv')
 
@@ -35,16 +42,21 @@ class YelpTrainer(object):
     # setup early stopping and checkpointer
     early_stopping = EarlyStopping(patience=self.patience, score_function=self.score_fn,
         trainer=self.trainer)
-    checkpointer = ModelCheckpoint(self.save_dir, self.prefix, require_empty=False, save_interval=2, n_saved=5,
-        save_as_state_dict=True)
+    checkpointer = ModelCheckpoint(self.save_dir, self.prefix, require_empty=False, save_interval=2,
+        n_saved=5, save_as_state_dict=True)
 
     # add all the event handlers
     self.trainer.add_event_handler(Events.STARTED, self.open_csv)
     self.trainer.add_event_handler(Events.EPOCH_COMPLETED, self.log_epoch)
-    self.trainer.add_event_handler(Events.EPOCH_COMPLETED, checkpointer, {self.model_name: model})
+    self.trainer.add_event_handler(Events.EPOCH_COMPLETED, checkpointer, {self.model_name:
+      self.module})
     self.trainer.add_event_handler(Events.COMPLETED, self.close_csv)
     self.valid_eval.add_event_handler(Events.COMPLETED, early_stopping)
+    self.valid_eval.add_event_handler(Events.COMPLETED, self.scheduler_step)
     # self.trainer.add_event_handler(Events.ITERATION_COMPLETED, self.log_training_loss)
+
+  def scheduler_step(self, engine):
+    self.scheduler.step(engine.state.metrics['loss'])
 
   def open_csv(self, engine):
     self.fp = open(self.metrics_file, 'w')
@@ -59,7 +71,7 @@ class YelpTrainer(object):
 
   def log_epoch(self, engine):
     self.train_eval.run(self.train_dl)
-    self.valid_eval.run(self.valid_dl)
+    self.valid_eval.run(self.val_dl)
     epoch = engine.state.epoch
 
     train_metric = self.train_eval.state.metrics
