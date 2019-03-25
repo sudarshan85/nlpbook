@@ -7,24 +7,16 @@ import pandas as pd
 
 from torch.utils.data import Dataset
 
-from .vectorizer import Vectorizer
+from .vectorizer import MLPVectorizer
 
-class ProjectDataset(Dataset):
+class MLPDataset(Dataset):
   """
     DataSet derived from PyTorch's Dataset class
   """
-  def __init__(self, df: pd.DataFrame, vectorizer: Vectorizer=None) -> None:
+  def __init__(self, df: pd.DataFrame, vectorizer: MLPVectorizer=None) -> None:
     self.df = df
     self.df_size = len(self.df)
     self._vectorizer = vectorizer
-
-    # class weights are the inverse of the frequencies of each class
-    # this is for cross entropy loss
-    # class_counts = df['nationality'].value_counts().to_dict()
-    # sorted_counts = sorted(class_counts.items(), key=lambda x:
-        # self._vectorizer.nationality_vocab.lookup_token(x[0]))
-    # freq = [count for _, count in sorted_counts]
-    # self.class_weights = 1.0/torch.tensor(freq, dtype=torch.float32)
 
   @classmethod
   def load_data_and_create_vectorizer(cls, df: pd.DataFrame):
@@ -37,7 +29,7 @@ class ProjectDataset(Dataset):
       Returns:
         an instance of Vectorizer
     """
-    return cls(df, Vectorizer.from_dataframe(df))
+    return cls(df, MLPVectorizer.from_dataframe(df))
 
   @classmethod
   def load_data_and_vectorizer(cls, df: pd.DataFrame, vectorizer_path: str):
@@ -53,7 +45,7 @@ class ProjectDataset(Dataset):
     return cls(df, vectorizer)
 
   @staticmethod
-  def load_vectorizer(vectorizer_path: str) -> Vectorizer:
+  def load_vectorizer(vectorizer_path: str) -> MLPVectorizer:
     """
       A static method for loading the vectorizer from file
 
@@ -61,7 +53,7 @@ class ProjectDataset(Dataset):
         vectorizer_path: path to the saved vectorizer file
     """
     with open(vectorizer_path) as f:
-      return Vectorizer.from_serializable(json.load(f))
+      return MLPVectorizer.from_serializable(json.load(f))
 
   def save_vectorizer(self, vectorizer_path: str) -> None:
     """
@@ -73,7 +65,7 @@ class ProjectDataset(Dataset):
     with open(vectorizer_path, 'w') as f:
       json.dump(self._vectorizer.to_serializeable(), f)
 
-  def get_vectorizer(self) -> Vectorizer:
+  def get_vectorizer(self) -> MLPVectorizer:
     return self._vectorizer
 
   def __len__(self) -> int:

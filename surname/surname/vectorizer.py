@@ -6,7 +6,7 @@ import string
 
 from .vocab import Vocabulary
 
-class Vectorizer(object):
+class MLPVectorizer(object):
   """
     The Vectorizer which coordinates the vocabularies and puts them to use
   """
