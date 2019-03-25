@@ -22,3 +22,32 @@ class MLPClassifier(nn.Module):
       y_out = self.softmax(y_out)
 
     return y_out
+
+class CNNClassifier(nn.Module):
+  def __init__(self, initial_num_channels, num_classes, num_channels):
+    super(CNNClassifier, self).__init__()
+
+    self.convnet = nn.Sequential(
+          nn.Conv1d(in_channels=initial_num_channels, out_channels=num_channels, kernel_size=3),
+          nn.ELU(),
+          nn.Conv1d(in_channels=initial_num_channels, out_channels=num_channels, kernel_size=3,
+            stride=2),
+          nn.ELU(),
+          nn.Conv1d(in_channels=initial_num_channels, out_channels=num_channels, kernel_size=3,
+            stride=2),
+          nn.ELU(),
+          nn.Conv1d(in_channels=initial_num_channels, out_channels=num_channels, kernel_size=3,
+            stride=2),
+          nn.ELU()
+        )
+    self.fc = nn.Linear(num_channels, num_classes)
+    self.softmax = nn.Softmax()
+
+  def forward(self, x_in, apply_softmax=False):
+    y_out = self.convnet(x_in).squeeze(dim=2)
+    y_out = self.fc(y_out)
+
+    if apply_softmax:
+      y_out = self.softmax(y_out)
+
+    return y_out

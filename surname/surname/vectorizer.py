@@ -52,7 +52,7 @@ class CNNVectorizer(object):
     """
     surname_vocab = Vocabulary.from_serializable(contents['surname_vocab'])
     nationality_vocab = Vocabulary.from_serializable(contents['nationality_vocab'])
-    max_surname_length = Vocabulary.from_serializable(contents['max_surname_length'])
+    max_surname_length = contents['max_surname_length']
     return cls(surname_vocab, nationality_vocab, max_surname_length)
 
   @classmethod
