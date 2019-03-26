@@ -30,13 +30,13 @@ class CNNClassifier(nn.Module):
     self.convnet = nn.Sequential(
           nn.Conv1d(in_channels=initial_num_channels, out_channels=num_channels, kernel_size=3),
           nn.ELU(),
-          nn.Conv1d(in_channels=initial_num_channels, out_channels=num_channels, kernel_size=3,
+          nn.Conv1d(in_channels=num_channels, out_channels=num_channels, kernel_size=3,
             stride=2),
           nn.ELU(),
-          nn.Conv1d(in_channels=initial_num_channels, out_channels=num_channels, kernel_size=3,
+          nn.Conv1d(in_channels=num_channels, out_channels=num_channels, kernel_size=3,
             stride=2),
           nn.ELU(),
-          nn.Conv1d(in_channels=initial_num_channels, out_channels=num_channels, kernel_size=3,
+          nn.Conv1d(in_channels=num_channels, out_channels=num_channels, kernel_size=3,
             stride=2),
           nn.ELU()
         )
