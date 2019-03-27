@@ -3,7 +3,7 @@
 from argparse import Namespace
 from pathlib import Path
 
-# args are loaded into one directory above
+# consts are loaded into one directory above
 path = Path('../data/books')
 work_dir=path/'work_dir'
 
@@ -15,7 +15,7 @@ consts = Namespace(
     vectorizer_file=work_dir/'vectorizer.json',
     metric_file=work_dir/'metrics.csv',
     embedding_size=100,
-    batch_size=512,
+    batch_size=1024,
     learning_rate=0.0001,
     num_epochs=100,
     device='cuda:3',

@@ -12,9 +12,10 @@ from ignite.engine import Events, create_supervised_evaluator
 from ignite.metrics import Accuracy, Loss
 from ignite.contrib.handlers import ProgressBar
 
+from consts import consts
+
 from cbow.dataset import CBOWDataset, DataContainer
 from cbow.model import CBOWClassifier, ModelContainer
-from cbow.consts import consts
 from cbow.trainer import IgniteTrainer
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,6 @@ logger.setLevel(logging.INFO)
 sh = logging.StreamHandler()
 sh.setFormatter(logging.Formatter('%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(sh)
-
 
 if __name__=='__main__':
   logger.info("Loading data...")
@@ -41,7 +41,6 @@ if __name__=='__main__':
   pbar = ProgressBar(persist=True)
   metrics = {'accuracy': Accuracy(), 'loss': Loss(loss_func)}
 
-  consts.num_epochs=2
   logger.info(f"Running model for {consts.num_epochs} epochs on device {consts.device}")
   ig = IgniteTrainer(mc, dc, consts, pbar, metrics)
   ig.run()
