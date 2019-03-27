@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pdb
 from typing import List
 from bidict import bidict
 
@@ -35,6 +36,7 @@ class Vocabulary(object):
     return [self.add_token(token) for token in tokens]
 
   def lookup_token(self, token: str) -> int:
+    # pdb.set_trace()
     if self.unk_idx >= 0:
       if token in self.idx_token_bidict.values():
         return self.idx_token_bidict.inverse[token]
@@ -50,15 +52,20 @@ class Vocabulary(object):
 
   def to_serializable(self):
     return {
-        'idx_token_bidict': self.idx_token_bidict,
+        'idx_token_map': dict(self.idx_token_bidict),
         'add_unk': self.add_unk,
         'unk_token': self.unk_token,
         'mask_token': self.mask_token
         }
 
   @classmethod
-  def from_serializable(self, contents):
-    return cls(**contents)
+  def from_serializable(cls, contents):
+    idx_token_map = {int(k): v for k,v in contents['idx_token_map'].items()}
+    idx_token_bidict = bidict(idx_token_map)
+    add_unk = contents['add_unk']
+    unk_token = contents['unk_token']
+    mask_token = contents['mask_token']
+    return cls(idx_token_bidict, add_unk, unk_token, mask_token)
 
   def __repr__(self):
     return f'<Vocabulary(size={self.size})'

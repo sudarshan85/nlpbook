@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
 import pandas as pd
+import numpy as np
 import json
 from pathlib import Path
-from torch.utils import Dataset
+from torch.utils.data import Dataset
 
-from vectorizer import Vectorizer
+from .vectorizer import Vectorizer
 
 class CBOWDataset(Dataset):
   def __init__(self, df: pd.DataFrame, vectorizer: Vectorizer) -> None:
@@ -13,12 +14,12 @@ class CBOWDataset(Dataset):
     self._vectorizer = vectorizer
 
     # get the length of the longest context
-    # should be window_size * 2 + 1
+    # should be window_size * 2 and target is 1
     measure_len = lambda context: len(context.split(' '))
     self._max_seq_len = max(map(measure_len, self._df['context']))
 
   @classmethod
-  def load_data_and_create_vectorizer(cls, df: pd.DataFrame) -> CBOWDataset:
+  def load_data_and_create_vectorizer(cls, df: pd.DataFrame):
     return cls(df, Vectorizer.from_dataframe(df))
 
   @staticmethod
@@ -27,8 +28,12 @@ class CBOWDataset(Dataset):
       return Vectorizer.from_serializable(json.load(fp))
 
   @classmethod
-  def load_data_and_vectorizer(cls, df: pd.DataFrame, vectorizer_path: Path) -> CBOWDataset:
+  def load_data_and_vectorizer_from_file(cls, df: pd.DataFrame, vectorizer_path: Path):
     vectorizer = cls.load_vectorizer(vectorizer_path)
+    return cls(df, vectorizer)
+
+  @classmethod
+  def load_data_and_vectorizer(cls, df: pd.DataFrame, vectorizer: Vectorizer):
     return cls(df, vectorizer)
 
   def save_vectorizer(self, vectorizer_path: Path) -> None:
@@ -40,8 +45,7 @@ class CBOWDataset(Dataset):
 
   def __getitem__(self, idx):
     row = self._df.iloc[idx]
-    context_vector = np.asarray(self._vectorizer.vectorizer(row['context'], self._max_seq_len),
-        dtype=np.float32)
+    context_vector = np.asarray(self._vectorizer.vectorizer(row['context'], self._max_seq_len))
     target_idx = np.asarray(self._vectorizer.cbow_vocab.lookup_token(row['target']))
 
     return (context_vector, target_idx)
@@ -49,6 +53,7 @@ class CBOWDataset(Dataset):
   def __len__(self):
     return len(self._df)
 
+  @property
   def max_length(self):
     return self._max_seq_len
 
