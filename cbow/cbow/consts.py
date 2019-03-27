@@ -13,6 +13,7 @@ consts = Namespace(
     proc_dataset_csv=path/'frankenstein_with_splits.csv',
     model_dir=work_dir/'models',
     vectorizer_file=work_dir/'vectorizer.json',
+    metric_file=work_dir/'metrics.csv',
     embedding_size=50,
     batch_size=128,
     learning_rate=0.0001,
