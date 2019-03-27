@@ -20,8 +20,8 @@ consts = Namespace(
     num_epochs=100,
     device='cuda:3',
     checkpointer_prefix='cbow',
-    checkpointer_name='cbow_classifier',
+    checkpointer_name='classifier',
     early_stopping_criteria=5,
-    save_every=1, # save model every n epochs
-    save_total=3, # have total of n models saved
+    save_every=2, # save model every n epochs
+    save_total=5, # have total of n models saved
     )

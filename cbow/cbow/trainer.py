@@ -58,9 +58,10 @@ class IgniteTrainer(object):
     self.trainer.add_event_handler(Events.EPOCH_COMPLETED, checkpointer, {self.model_name:
       self.model})
     self.trainer.add_event_handler(Events.COMPLETED, self._close_csv)
+    # self.trainer.add_event_handler(Events.ITERATION_COMPLETED, self._log_training_loss)
+
     self.val_eval.add_event_handler(Events.COMPLETED, early_stopping)
     self.val_eval.add_event_handler(Events.COMPLETED, self._scheduler_step)
-    # self.trainer.add_event_handler(Events.ITERATION_COMPLETED, self._log_training_loss)
 
   def _open_csv(self, engine):
     self.fp = open(self.metrics_file, 'w')
