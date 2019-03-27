@@ -7,12 +7,13 @@ from pathlib import Path
 path = Path('../data/books')
 work_dir=path/'work_dir'
 
-args = Namespace(
+consts = Namespace(
     path=path,
     work_dir=work_dir,
     proc_dataset_csv=path/'frankenstein_with_splits.csv',
     model_dir=work_dir/'models',
     vectorizer_file=work_dir/'vectorizer.json',
+    embedding_size=50,
     batch_size=128,
     learning_rate=0.0001,
     num_epochs=100,
