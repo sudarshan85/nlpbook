@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
+import pandas as pd
 import numpy as np
-import json
 
 from vocabulary import Vocabulary
 
@@ -25,5 +25,30 @@ class Vectorizer(object):
 
     return out_vector
 
+  @classmethod
+  def from_dataframe(cls, df: pd.DataFrame) -> Vectorizer:
+    """
+      Instantiate the vectorizer from dataset dataframe
 
+      Args:
+        df: target dataset
+
+      Returns:
+        an instance of the vectorizer
+    """
+    cbow_vocab = Vocabulary()
+    for idx, row in df.iterrows():
+      for token in row['context'].split(' '):
+        cbow_vocab.add_token(token)
+      cbow_vocab.add_token(row['target'])
+
+    return cls(cbow_vocab)
+
+  @classmethod
+  def from_serializable(cls, contents: dict) -> Vectorizer:
+    cbow_vocab = Vocabulary.from_serializable(contents['cbow_vocab'])
+    return cls(cbow_vocab=cbow_vocab)
+
+  def to_serializable(self) -> dict:
+    return {'cbow_vocab': self.cbow_vocab.to_serializable()}
 

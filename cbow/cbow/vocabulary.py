@@ -57,7 +57,7 @@ class Vocabulary(object):
         }
 
   @classmethod
-  def from_serializable(self):
+  def from_serializable(self, contents):
     return cls(**contents)
 
   def __repr__(self):
