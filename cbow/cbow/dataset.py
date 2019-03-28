@@ -41,7 +41,7 @@ class CBOWDataset(Dataset):
     with open(vectorizer_path, 'w') as fp:
       json.dump(self._vectorizer.to_serializable(), fp)
 
-  @propoerty
+  @property
   def vectorizer(self):
     return self._vectorizer
 
