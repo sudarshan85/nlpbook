@@ -77,8 +77,9 @@ class DataContainer(object):
 
     self._train_ds = dataset_class.load_data_and_vectorizer_from_file(self._train_df, vectorizer_file)
     self._vectorizer = self._train_ds.vectorizer
-    self._vocabulary = [self._vectorizer.title_vocab, self._vectorizer.category_vocab]
+    self._vocabulary = self._vectorizer.title_vocab
     self._vocab_size = len(self._vocabulary)
+    self._n_classes = len(self._vectorizer.category_vocab)
     self.train_dl = DataLoader(self._train_ds, batch_size, shuffle=True, drop_last=True)
 
     self._val_ds = dataset_class.load_data_and_vectorizer(self._val_df, self._vectorizer)
@@ -119,6 +120,10 @@ class DataContainer(object):
   @property
   def vocabulary_size(self):
     return self._vocab_size
+
+  @property
+  def n_classes(self):
+    return self._n_classes
 
   @property
   def sizes(self):

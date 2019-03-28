@@ -5,19 +5,24 @@ from pathlib import Path
 
 # consts are loaded into one directory above
 path = Path('../data/ag_news')
+pretrained_path = Path('../pretrained_path/glove6B')
 work_dir=path/'work_dir'
 
 consts = Namespace(
     path=path,
     work_dir=work_dir,
-    raw_dataset_csv=path/'news.csv',
     proc_dataset_csv=path/'news_with_splits.csv',
     model_dir=work_dir/'models',
     vectorizer_file=work_dir/'vectorizer.json',
     metric_file=work_dir/'metrics.csv',
+    use_glove=False,
+    glove_path=pretrained_path/'glove.6B.100d.txt',
     embedding_size=100,
-    batch_size=64,
-    learning_rate=0.0001,
+    hidden_dim=100,
+    n_channels=100,
+    dropout_p=0.1,
+    batch_size=256,
+    learning_rate=0.001,
     num_epochs=100,
     device='cuda:3',
     checkpointer_prefix='cbow',
