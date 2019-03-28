@@ -41,7 +41,6 @@ if __name__=='__main__':
   pbar = ProgressBar(persist=True)
   metrics = {'accuracy': Accuracy(), 'loss': Loss(loss_func)}
 
-  consts.num_epochs=2
   logger.info("Running model for {} epochs on device {} with batch size {}"
       .format(consts.num_epochs, consts.device, consts.batch_size))
   ig = IgniteTrainer(mc, dc, consts, pbar, metrics)

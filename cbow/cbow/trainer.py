@@ -110,7 +110,7 @@ class IgniteTrainer(object):
   def _close_csv(self, engine):
     train_time = str(datetime.timedelta(seconds=self.training_timer.value()))
     self.pbar.log_message(f"Training Done. Total training time: {train_time}")
-    self.fp.write(f"{train_time)\n")
+    self.fp.write(f"{train_time}\n")
     self.fp.close()
 
   def run(self):
