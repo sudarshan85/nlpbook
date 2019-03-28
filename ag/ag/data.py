@@ -14,17 +14,13 @@ class NewsDataset(Dataset):
     self._df = df
     self._vectorizer = vectorizer
 
+    # +2 to account for EOS and BOS
     measure_len = lambda context: len(context.split(' '))
-    self._max_seq_len = max(map(measure_len, self._df['context']))
+    self._max_seq_len = max(map(measure_len, self._df['title'])) + 2
 
   @classmethod
   def load_data_and_create_vectorizer(cls, df: pd.DataFrame):
     return cls(df, Vectorizer.from_dataframe(df))
-
-  @staticmethod
-  def load_vectorizer(vectorizer_path: Path) -> Vectorizer:
-    with open(vectorizer_path) as fp:
-      return Vectorizer.from_serializable(json.load(fp))
 
   @classmethod
   def load_data_and_vectorizer_from_file(cls, df: pd.DataFrame, vectorizer_path: Path):
@@ -35,27 +31,32 @@ class NewsDataset(Dataset):
   def load_data_and_vectorizer(cls, df: pd.DataFrame, vectorizer: Vectorizer):
     return cls(df, vectorizer)
 
+  @staticmethod
+  def load_vectorizer(vectorizer_path: Path) -> Vectorizer:
+    with open(vectorizer_path) as fp:
+      return Vectorizer.from_serializable(json.load(fp))
+
   def save_vectorizer(self, vectorizer_path: Path) -> None:
     with open(vectorizer_path, 'w') as fp:
       json.dump(self._vectorizer.to_serializable(), fp)
+
+  def __getitem__(self, idx):
+    row = self._df.iloc[idx]
+    title_vector = np.asarray(self._vectorizer.vectorizer(row['title'], self._max_seq_len))
+    category_idx = np.asarray(self._vectorizer.category_vocab.lookup_token(row['category']))
+
+    return (context_vector, target_idx)
 
   @property
   def vectorizer(self):
     return self._vectorizer
 
-  def __getitem__(self, idx):
-    row = self._df.iloc[idx]
-    context_vector = np.asarray(self._vectorizer.vectorizer(row['context'], self._max_seq_len))
-    target_idx = np.asarray(self._vectorizer.cbow_vocab.lookup_token(row['target']))
-
-    return (context_vector, target_idx)
-
-  def __len__(self):
-    return len(self._df)
-
   @property
   def max_seq_length(self):
     return self._max_seq_len
+
+  def __len__(self):
+    return len(self._df)
 
 class DataContainer(object):
   def __init__(self, df_with_split: pd.DataFrame, dataset_class, vectorizer_file: Path, batch_size: int, with_test = True, is_load: bool=True) -> None:
