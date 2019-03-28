@@ -6,15 +6,15 @@ import string
 
 from collections import Counter
 
-from .vocabulary import Vocabulary
+from .vocabulary import Vocabulary, SequenceVocabulary
 
 class Vectorizer(object):
   def __init__(self, title_vocab: Vocabulary, category_vocab: Vocabulary):
     self.title_vocab = title_vocab
     self.category_vocab = category_vocab
 
-  # def vectorizer(self, title: str, vector_len: int=-1) -> np.ndarray:
-  def vectorizer(self, title: str, vector_len: int) -> np.ndarray:
+  # def vectorize(self, title: str, vector_len: int=-1) -> np.ndarray:
+  def vectorize(self, title: str, vector_len: int) -> np.ndarray:
     """
       Args:
         title: string of words separated by a space
@@ -48,7 +48,7 @@ class Vectorizer(object):
       Returns:
         an instance of the vectorizer
     """
-    title_vocab = Vocabulary()
+    title_vocab = SequenceVocabulary()
     category_vocab = Vocabulary()
     category_vocab.add_many(list(df['category'].unique()))
 
@@ -66,7 +66,7 @@ class Vectorizer(object):
 
   @classmethod
   def from_serializable(cls, contents: dict):
-    title_vocab = Vocabulary.from_serializable(contents['title_vocab'])
+    title_vocab = SequenceVocabulary.from_serializable(contents['title_vocab'])
     category_vocab = Vocabulary.from_serializable(contents['category_vocab'])
     return cls(title_vocab, category_vocab)
 

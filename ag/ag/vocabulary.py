@@ -50,6 +50,7 @@ class Vocabulary(object):
 class SequenceVocabulary(Vocabulary):
   def __init__(self, idx_token_bidict: bidict=None, unk_token: str='<UNK>', mask_token:
       str='<MASK>', bos_token: str='<BOS>', eos_token: str='<EOS>'):
+    super(SequenceVocabulary, self).__init__(idx_token_bidict)
 
     # save all the tokens
     self.mask = mask_token

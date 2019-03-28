@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import json
+import torch
 
 from pathlib import Path
 from torch.utils.data import Dataset, DataLoader
@@ -42,7 +43,7 @@ class NewsDataset(Dataset):
 
   def __getitem__(self, idx):
     row = self._df.iloc[idx]
-    title_vector = np.asarray(self._vectorizer.vectorizer(row['title'], self._max_seq_len))
+    title_vector = np.asarray(self._vectorizer.vectorize(row['title'], self._max_seq_len))
     category_idx = np.asarray(self._vectorizer.category_vocab.lookup_token(row['category']))
 
     return (title_vector, category_idx)
@@ -59,7 +60,8 @@ class NewsDataset(Dataset):
     return len(self._df)
 
 class DataContainer(object):
-  def __init__(self, df_with_split: pd.DataFrame, dataset_class, vectorizer_file: Path, batch_size: int, with_test = True, is_load: bool=True) -> None:
+  def __init__(self, df_with_split: pd.DataFrame, dataset_class, vectorizer_file: Path, batch_size:
+      int, with_test=True, is_load: bool=True) -> None:
     self._train_df = df_with_split.loc[df_with_split['split'] == 'train']
     self._val_df = df_with_split.loc[df_with_split['split'] == 'val']
     self._bs = batch_size
@@ -77,9 +79,8 @@ class DataContainer(object):
 
     self._train_ds = dataset_class.load_data_and_vectorizer_from_file(self._train_df, vectorizer_file)
     self._vectorizer = self._train_ds.vectorizer
-    self._vocabulary = self._vectorizer.title_vocab
-    self._vocab_size = len(self._vocabulary)
-    self._n_classes = len(self._vectorizer.category_vocab)
+    self._title_vocab = self._vectorizer.title_vocab
+    self._cat_vocab= self._vectorizer.category_vocab
     self.train_dl = DataLoader(self._train_ds, batch_size, shuffle=True, drop_last=True)
 
     self._val_ds = dataset_class.load_data_and_vectorizer(self._val_df, self._vectorizer)
@@ -100,8 +101,12 @@ class DataContainer(object):
     return self._vectorizer
 
   @property
-  def vocabulary(self):
-    return self._vocabulary
+  def title_vocab(self):
+    return self._title_vocab
+
+  @property
+  def cat_vocab(self):
+    return self._cat_vocab
 
   @property
   def train_batches(self):
@@ -118,12 +123,12 @@ class DataContainer(object):
     return self._n_batches[2]
 
   @property
-  def vocabulary_size(self):
-    return self._vocab_size
+  def vocab_size(self):
+    return len(self._title_vocab)
 
   @property
-  def n_classes(self):
-    return self._n_classes
+  def n_cats(self):
+    return len(self._cat_vocab)
 
   @property
   def sizes(self):

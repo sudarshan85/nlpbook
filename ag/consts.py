@@ -15,6 +15,7 @@ consts = Namespace(
     model_dir=work_dir/'models',
     vectorizer_file=work_dir/'vectorizer.json',
     metric_file=work_dir/'metrics.csv',
+    cw_file=work_dir/'class_weights.pth',
     use_glove=False,
     glove_path=pretrained_path/'glove.6B.100d.txt',
     embedding_size=100,
