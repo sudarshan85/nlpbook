@@ -11,6 +11,7 @@ consts = Namespace(
     path=path,
     work_dir=work_dir,
     proc_dataset_csv=path/'frankenstein_with_splits.csv',
+    # proc_dataset_csv=path/'ori.csv',
     model_dir=work_dir/'models',
     vectorizer_file=work_dir/'vectorizer.json',
     metric_file=work_dir/'metrics.csv',

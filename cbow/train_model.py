@@ -27,7 +27,7 @@ logger.addHandler(sh)
 if __name__=='__main__':
   logger.info("Loading data...")
   df = pd.read_csv(consts.proc_dataset_csv)
-  dc = DataContainer(df, consts.vectorizer_file, consts.batch_size, is_load=True)
+  dc = DataContainer(df, consts.vectorizer_file, consts.batch_size, with_test=True, is_load=True)
 
   logger.info("Instantiating model...")
   classifier = CBOWClassifier(dc.vocabulary_size, consts.embedding_size)
@@ -41,6 +41,7 @@ if __name__=='__main__':
   pbar = ProgressBar(persist=True)
   metrics = {'accuracy': Accuracy(), 'loss': Loss(loss_func)}
 
-  logger.info(f"Running model for {consts.num_epochs} epochs on device {consts.device}")
+  logger.info("Running model for {} epochs on device {} with batch size {}"
+      .format(consts.num_epochs, consts.device, consts.batch_size))
   ig = IgniteTrainer(mc, dc, consts, pbar, metrics)
   ig.run()

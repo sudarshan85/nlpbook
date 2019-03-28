@@ -41,7 +41,8 @@ class CBOWDataset(Dataset):
     with open(vectorizer_path, 'w') as fp:
       json.dump(self._vectorizer.to_serializable(), fp)
 
-  def get_vectorizer(self):
+  @propoerty
+  def vectorizer(self):
     return self._vectorizer
 
   def __getitem__(self, idx):
@@ -77,8 +78,9 @@ class DataContainer(object):
       train_ds.save_vectorizer(vectorizer_file)
 
     self._train_ds = CBOWDataset.load_data_and_vectorizer_from_file(self._train_df, vectorizer_file)
-    self._vectorizer = self._train_ds.get_vectorizer()
-    self._vocab_size = len(self._vectorizer.cbow_vocab)
+    self._vectorizer = self._train_ds.vectorizer
+    self._vocabulary = self._vectorizer.cbow_vocab
+    self._vocab_size = len(self._vocabulary)
     self.train_dl = DataLoader(self._train_ds, batch_size, shuffle=True, drop_last=True)
 
     self._val_ds = CBOWDataset.load_data_and_vectorizer(self._val_df, self._vectorizer)
@@ -90,11 +92,16 @@ class DataContainer(object):
       self._test_ds = CBOWDataset.load_data_and_vectorizer(self._test_df, self._vectorizer)
       self.test_dl = DataLoader(self._test_ds, batch_size, shuffle=True, drop_last=True)
 
-  def get_vectorizer(self):
-    return self._vectorizer
-
   def get_loaders(self):
     return self.train_dl, self.val_dl, self.test_dl
+
+  @property
+  def vectorizer(self):
+    return self._vectorizer
+
+  @property
+  def vocabulary(self):
+    return self._vocabulary
 
   @property
   def vocabulary_size(self):

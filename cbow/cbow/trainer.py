@@ -6,7 +6,7 @@ from pathlib import Path
 
 from ignite.engine import Events, create_supervised_trainer, create_supervised_evaluator
 from ignite.metrics import RunningAverage
-from ignite.handlers import EarlyStopping, ModelCheckpoint
+from ignite.handlers import EarlyStopping, ModelCheckpoint, Timer
 from ignite.contrib.handlers import ProgressBar
 
 from .model import ModelContainer
@@ -46,6 +46,11 @@ class IgniteTrainer(object):
     RunningAverage(output_transform=lambda x: x).attach(self.trainer, 'loss')
     self.pbar.attach(self.trainer, ['loss'])
 
+    # setup timer
+    self.timer = Timer(average=True)
+    self.timer.attach(self.trainer, start=Events.EPOCH_COMPLETED, resume=Events.ITERATION_STARTED,
+        pause=Events.ITERATION_COMPLETED, step=Events.ITERATION_COMPLETED)
+
     # setup early stopping and checkpointer
     early_stopping = EarlyStopping(patience=self.patience, score_function=self.score_fn,
         trainer=self.trainer)
@@ -78,6 +83,7 @@ class IgniteTrainer(object):
       self.pbar.log_message(f"ITERATION - loss: {engine.state.output:0.4f}")
 
   def _log_epoch(self, engine):
+    self.timer.reset()
     self.train_eval.run(self.train_dl)
     self.val_eval.run(self.val_dl)
     epoch = engine.state.epoch
@@ -93,6 +99,7 @@ class IgniteTrainer(object):
     self.pbar.log_message(f"Epoch: {epoch}")
     self.pbar.log_message(f"Training - Loss: {train_loss}, Accuracy: {train_acc}")
     self.pbar.log_message(f"Validation - Loss: {valid_loss}, Accuracy: {valid_acc}")
+    self.pbar.log_message(f"Time per batch {self.timer.value():0.3f}[s]")
 
     row = [epoch, f"{train_loss}", f"{train_acc}", f"{valid_loss}", f"{valid_acc}"]
     self.writer.writerow(row)
