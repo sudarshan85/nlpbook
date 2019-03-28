@@ -4,15 +4,34 @@ from typing import List
 from bidict import bidict
 
 class Vocabulary(object):
-  def __init__(self, idx_token_bidict: bidict=None) -> None:
+  def __init__(self, idx_token_bidict: bidict=None, unk_token: str='<UNK>', mask_token:
+      str='<MASK>', bos_token: str='<BOS>', eos_token: str='<EOS>'):
     if not idx_token_bidict:
       idx_token_bidict = bidict()
 
     self.idx_token_bidict = idx_token_bidict
     self.size = len(self.idx_token_bidict)
 
+    # save all the tokens
+    self.mask = mask_token
+    self.eos = eos_token
+    self.bos = bos_token
+    self.unk = unk_token
+
+    # add all to the bidict
+    self.mask_idx = self.add_token(self.mask)
+    self.unk_idx = self.add_token(self.unk)
+    self.bos_idx = self.add_token(self.bos)
+    self.eos_idx = self.add_token(self.eos)
+
   def to_serializable(self):
-    return {'idx_token_map': dict(self.idx_token_bidict)}
+    return {
+        'idx_token_map': dict(self.idx_token_bidict),
+        'unk_token': self.unk,
+        'mask_token': self.mask,
+        'bos_token': self.bos,
+        'eos_token': self.eos,
+      }
 
   @classmethod
   def from_serializable(cls, contents):
@@ -32,47 +51,6 @@ class Vocabulary(object):
 
   def add_many(self, tokens: List[str]) -> List[int]:
     return [self.add_token(token) for token in tokens]
-
-  def lookup_token(self, token: str) -> int:
-    return self.idx_token_bidict.inverse[token]
-
-  def lookup_idx(self, idx: int) -> str:
-    if idx not in self.idx_token_bidict:
-      raise KeyError(f"The index {idx} is no in the vocabulary")
-    return self.idx_token_bidict[idx]
-
-  def __repr__(self):
-    return f'<Vocabulary(size={self.size})'
-
-  def __len__(self):
-    return self.size
-
-
-class SequenceVocabulary(Vocabulary):
-  def __init__(self, idx_token_bidict: bidict=None, unk_token: str='<UNK>', mask_token:
-      str='<MASK>', bos_token: str='<BOS>', eos_token: str='<EOS>'):
-    super(SequenceVocabulary, self).__init__(idx_token_bidict)
-
-    # save all the tokens
-    self.mask = mask_token
-    self.eos = eos_token
-    self.bos = bos_token
-    self.unk = unk_token
-
-    # add all to the bidict
-    self.mask_idx = self.add_token(self.mask)
-    self.unk_idx = self.add_token(self.unk)
-    self.bos_idx = self.add_token(self.bos)
-    self.eos_idx = self.add_token(self.eos)
-
-  def to_serializable(self):
-    contents = super(SequenceVocabulary, self).to_serializable()
-    contents.update({
-        'unk_token': self.unk,
-        'mask_token': self.mask,
-        'bos_token': self.bos,
-        'eos_token': self.eos,
-      })
 
   def lookup_token(self, token: str) -> int:
     """
@@ -97,3 +75,13 @@ class SequenceVocabulary(Vocabulary):
     else:
       return self.idx_token_bidict.inverse[token]
 
+  def lookup_idx(self, idx: int) -> str:
+    if idx not in self.idx_token_bidict:
+      raise KeyError(f"The index {idx} is no in the vocabulary")
+    return self.idx_token_bidict[idx]
+
+  def __repr__(self):
+    return f'<Vocabulary(size={self.size})'
+
+  def __len__(self):
+    return self.size
