@@ -45,7 +45,7 @@ class NewsDataset(Dataset):
     title_vector = np.asarray(self._vectorizer.vectorizer(row['title'], self._max_seq_len))
     category_idx = np.asarray(self._vectorizer.category_vocab.lookup_token(row['category']))
 
-    return (context_vector, target_idx)
+    return (title_vector, category_idx)
 
   @property
   def vectorizer(self):
@@ -77,7 +77,7 @@ class DataContainer(object):
 
     self._train_ds = dataset_class.load_data_and_vectorizer_from_file(self._train_df, vectorizer_file)
     self._vectorizer = self._train_ds.vectorizer
-    self._vocabulary = self._vectorizer.cbow_vocab
+    self._vocabulary = [self._vectorizer.title_vocab, self._vectorizer.category_vocab]
     self._vocab_size = len(self._vocabulary)
     self.train_dl = DataLoader(self._train_ds, batch_size, shuffle=True, drop_last=True)
 
