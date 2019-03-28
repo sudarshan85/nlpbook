@@ -47,3 +47,53 @@ class Vocabulary(object):
   def __len__(self):
     return self.size
 
+
+class SequenceVocabulary(Vocabulary):
+  def __init__(self, idx_token_bidict: bidict=None, unk_token: str='<UNK>', mask_token:
+      str='<MASK>', bos_token: str='<BOS>', eos_token: str='<EOS>'):
+    super(SequenceVocabulary, self).__init__(idx_token_bidict)
+
+    # save all the tokens
+    self.mask = mask_token
+    self.eos = eos_token
+    self.bos = bos_token
+    self.unk = unk_token
+
+    # add all to the bidict
+    self.mask_idx = self.add_token(self.mask)
+    self.unk_idx = self.add_token(self.unk)
+    self.bos_idx = self.add_token(self.bos)
+    self.eos_idx = self.add_token(self.eos)
+
+  def to_serializable(self):
+    contents = super(SequenceVocabulary, self).to_serializable()
+    contents.update({
+        'unk_token': self.unk,
+        'mask_token': self.mask,
+        'bos_token': self.bos,
+        'eos_token': self.eos,
+      })
+
+  def lookup_token(self, token: str) -> int:
+    """
+      Retrieve the index associated with the token or the UNK index if
+      token isn't present
+
+      Args:
+        token: the token to lookup
+
+      Returns:
+        index: the index to the corresponding token
+
+      Notes:
+        The `unk_idx` must be >=- (having been added into hte vocabulary)
+        for the UNK functionality
+    """
+    if self.unk_idx >= 0:
+      if token in self.idx_token_bidict.values():
+        return self.idx_token_bidict.inverse[token]
+      else:
+        return self.unk_idx
+    else:
+      return self.idx_token_bidict.inverse[token]
+
