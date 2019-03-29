@@ -11,7 +11,7 @@ from ignite.handlers import EarlyStopping, ModelCheckpoint, Timer
 from ignite.contrib.handlers import ProgressBar
 
 from .model import ModelContainer
-from .dataset import DataContainer
+from .data import DataContainer
 
 class IgniteTrainer(object):
   def __init__(self, mc: ModelContainer, dc: DataContainer, consts: Namespace, pbar:
