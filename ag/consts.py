@@ -28,7 +28,7 @@ consts = Namespace(
     device='cuda:3',
     checkpointer_prefix='agnews',
     checkpointer_name='classifier',
-    early_stopping_criteria=5,
+    early_stopping_criteria=7,
     save_every=2, # save model every n epochs
-    save_total=5, # have total of n models saved
+    save_total=3, # have total of n models saved
     )
