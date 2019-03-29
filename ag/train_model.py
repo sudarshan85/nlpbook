@@ -40,7 +40,7 @@ if __name__=='__main__':
   logger.info("Loading data...")
   df = pd.read_csv(consts.proc_dataset_csv)
   dc = DataContainer(df, NewsDataset, consts.vectorizer_file, consts.batch_size, with_test=True,
-      is_load=True)
+      is_load=False)
 
   try:
     class_weights = torch.load(consts.cw_file)
