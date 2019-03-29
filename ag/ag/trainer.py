@@ -19,7 +19,7 @@ class IgniteTrainer(object):
 
     # retreive required constants from consts
     self.model_dir = consts.model_dir
-    self.metrics_file = consts.metric_file
+    self.metrics_file = consts.metrics_file
     self.patience = consts.early_stopping_criteria
     self.n_epochs = consts.num_epochs
     self.device = consts.device
