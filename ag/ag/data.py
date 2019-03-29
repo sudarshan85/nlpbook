@@ -127,7 +127,7 @@ class DataContainer(object):
     return len(self._title_vocab)
 
   @property
-  def n_cats(self):
+  def n_classes(self):
     return len(self._cat_vocab)
 
   @property

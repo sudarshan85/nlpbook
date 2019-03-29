@@ -76,7 +76,7 @@ class PretrainedEmbeddings(object):
     idx_word_bidict = bidict()
     pretrained_emb_matrix = []
 
-    print("Loading file...")
+    print("Loading pretrained embeddings...")
     with open(embedding_file, 'r') as fp:
       for line in fp.readlines():
         line = line.split(' ')
