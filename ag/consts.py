@@ -5,7 +5,7 @@ from pathlib import Path
 
 # consts are loaded into one directory above
 path = Path('../data/ag_news')
-pretrained_path = Path('../pretrained_path/glove6B')
+pretrained_path = Path('../pretrained/glove6B')
 work_dir=path/'work_dir'
 
 consts = Namespace(
