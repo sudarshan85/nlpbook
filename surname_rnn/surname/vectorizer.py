@@ -3,6 +3,8 @@
 import pandas as pd
 import numpy as np
 
+from typing import Tuple
+
 from .vocabulary import Vocabulary, SequenceVocabulary
 
 class Vectorizer(object):
@@ -10,25 +12,26 @@ class Vectorizer(object):
     self.char_vocab = char_vocab
     self.nationality_vocab = nationality_vocab
 
-  def vectorize(self, surname: str, vector_len: int) -> np.ndarray:
+  def vectorize(self, surname: str, vector_len: int) -> Tuple[np.ndarray, int]:
     """
       Args:
         surname: input surname
         vector_len: length of the longest surname
 
       Returns:
-        vectorized title
+        vectorizerd surname and the sequence length
     """
     bos = [self.char_vocab.bos_idx]
     eos = [self.char_vocab.eos_idx]
     surname_idxs = [self.char_vocab.lookup_token(char) for char in surname]
     idxs = bos + surname_idxs + eos
+    seq_len = len(idxs)
 
     out_vector = np.zeros(vector_len, dtype=np.int64)
-    out_vector[:len(idxs)] = idxs
-    out_vector[len(idxs):] = self.char_vocab.mask_idx
+    out_vector[:seq_len] = idxs
+    out_vector[seq_len:] = self.char_vocab.mask_idx
 
-    return out_vector
+    return out_vector, seq_len
 
   @classmethod
   def from_dataframe(cls, df: pd.DataFrame):
