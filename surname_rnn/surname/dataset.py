@@ -10,7 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 
 from .vectorizer import Vectorizer
 
-class (Dataset):
+class SurnameDataset(Dataset):
   def __init__(self, df: pd.DataFrame, vectorizer: Vectorizer) -> None:
     self.df = df
     self.vectorizer = vectorizer
@@ -38,7 +38,7 @@ class (Dataset):
 
   def save_vectorizer(self, vectorizer_path: Path) -> None:
     with open(vectorizer_path, 'w') as fp:
-      json.dump(self._vectorizer.to_serializable(), fp)
+      json.dump(self.vectorizer.to_serializable(), fp)
 
   def __getitem__(self, idx):
     row = self._df.iloc[idx]

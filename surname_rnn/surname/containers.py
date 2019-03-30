@@ -3,6 +3,7 @@
 import pandas as pd
 
 from pathlib import Path
+from torch.utils.data import DataLoader
 
 class ModelContainer(object):
   def __init__(self, model, optimizer, loss_fn, scheduler=None):
@@ -31,8 +32,8 @@ class DataContainer(object):
 
     self.train_ds = dataset_class.load_data_and_vectorizer_from_file(self.train_df, vectorizer_file)
     self.vectorizer = self.train_ds.vectorizer
-    self._title_vocab = self._vectorizer.title_vocab
-    self._cat_vocab= self._vectorizer.category_vocab
+    self.surname_vocab = self.vectorizer.surname_vocab
+    self.nationality_vocab= self.vectorizer.nationality_vocab
     self.train_dl = DataLoader(self.train_ds, self._bs, shuffle=True, drop_last=True)
 
     self.val_ds = dataset_class.load_data_and_vectorizer(self.val_df, self.vectorizer)
@@ -47,14 +48,6 @@ class DataContainer(object):
 
   def get_loaders(self):
     return self.train_dl, self.val_dl, self.test_dl
-
-  @property
-  def title_vocab(self):
-    return self._title_vocab
-
-  @property
-  def cat_vocab(self):
-    return self._cat_vocab
 
   @property
   def train_batches(self):
@@ -72,11 +65,11 @@ class DataContainer(object):
 
   @property
   def vocab_size(self):
-    return len(self._title_vocab)
+    return len(self.surname_vocab)
 
   @property
   def n_classes(self):
-    return len(self._cat_vocab)
+    return len(self.nationality_vocab)
 
   @property
   def sizes(self):
