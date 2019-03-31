@@ -1,59 +1,82 @@
 #!/usr/bin/env python
 
-import pdb
 import torch
 from torch import nn
-from torch.nn import functional as F
 
-class NewsClassifier(nn.Module):
-  def __init__(self, emb_sz, vocab_size, n_channels, hidden_dim, n_classes, dropout_p,
-      pretrained=None, freeze_pretrained=False, padding_idx=0):
-    super(NewsClassifier, self).__init__()
+from .elman import ElmanRNN
 
-    if pretrained is None:
-      self.emb = nn.Embedding(vocab_size, emb_sz, padding_idx)
-    else:
-      pretrained_emb = torch.from_numpy(pretrained).float()
-      self.emb = nn.Embedding(vocab_size, emb_sz, padding_idx, _weight=pretrained_emb)
-      if freeze_pretrained:
-        self.emb.weight.requires_grad = False
+def column_gather(y_out: torch.FloatTensor, x_lens: torch.FloatTensor) -> torch.FloatTensor:
+  """
+    Get a specific vector from each batch datapoint in 'y_out'
+    Iteratove over batch row indices, get the vector thats at the position
+    indicated by the corresponding value in 'x_lens' at the row index
 
-    self.convnet = nn.Sequential(
-      nn.Conv1d(in_channels=emb_sz, out_channels=n_channels, kernel_size=3),
-      nn.ELU(),
-      nn.Conv1d(in_channels=n_channels, out_channels=n_channels, kernel_size=3, stride=2),
-      nn.ELU(),
-      nn.Conv1d(in_channels=n_channels, out_channels=n_channels, kernel_size=3, stride=2),
-      nn.ELU(),
-      nn.Conv1d(in_channels=n_channels, out_channels=n_channels, kernel_size=3),
-      nn.ELU()
+    Args:
+      y_out: shape (bs, seq_sz, feat_sz)
+      x_lens: shape (bs,)
+
+    Returns:
+      y_out: shape (bs, feat_sz)
+  """
+  x_lens = x_lens.long().detach().cpu().numpy()-1
+
+  out = []
+  for batch_idx, column_idx in enumerate(x_lens):
+    out.append(y_out[batch_idx, column_idx])
+
+  return torch.stack(out)
+
+class SurnameClassifier(nn.Module):
+  """
+    A Classifier with a RNN to extract features and an MLP to classify
+  """
+  def __init__(self, emb_sz: int, n_embs: int, n_classes: int, rnn_hidden_sz:int ,
+               batch_first: bool=True, padding_idx: int=0) -> None:
+    """
+      Args:
+        emb_sz: the size of the character embeddings
+        n_embs: the number of characters to embed (vocabulary size)
+        n_classes: the size of the prediction vector
+        rnn_hidden_sz: the size of RNN's hidden state
+        batch_first: informs wehther the input tensors will have batch or sequence on the 0th dim
+        padding_idx: idx for the tensor padding
+    """
+    super(SurnameClassifier, self).__init__()
+    self.emb = nn.Embedding(n_embs, emb_sz, padding_idx)
+    self.rnn = ElmanRNN(inp_sz=emb_sz, hidden_sz=rnn_hidden_sz, batch_first=batch_first)
+    self.dropout = nn.Dropout(0.5)
+    self.mlp = nn.Sequential(
+      nn.Linear(rnn_hidden_sz, rnn_hidden_sz),
+      nn.ReLU(),
+      self.dropout,
+      nn.Linear(rnn_hidden_sz, n_classes)
     )
-
-    self.dropout = nn.Dropout(p=dropout_p)
-    self.relu = nn.ReLU()
-    self.fc1 = nn.Linear(in_features=n_channels, out_features=hidden_dim)
-    self.fc2 = nn.Linear(in_features=hidden_dim, out_features=n_classes)
     self.softmax = nn.Softmax(dim=1)
 
-  def forward(self, x_in, apply_softmax=False):
-    # embed and permute so features are channels
-    # conv1d (batch, channels, input)
-    x_emb = self.emb(x_in).permute(0,2,1)
-    features = self.convnet(x_emb)
+  def forward(self, x_in: torch.Tensor, x_lens: torch.Tensor=None, apply_softmax: bool=False) -> torch.Tensor:
+    """
+      The forward pass of the classifier
 
-    # average and remove extra dimension
-    remaining_size = features.size(dim=2)
-    features = F.avg_pool1d(features, remaining_size).squeeze(dim=2)
-    features = self.dropout(features)
+      Args:
+        x_in: input tensor of shape (bs, input_dim)
+        x_lens: lengths of each sequence in the batch used to find the final vector of each sequence
+        apply_softmax: flag for softmax activation, should be false when used with nn.CrossEntropy
+    """
+    x_emb = self.emb(x_in)
+    y_out = self.rnn(x_emb)
 
-    # mlp classifier
-    hidden_vector = self.fc1(features)
-    hidden_vector = self.dropout(hidden_vector)
-    hidden_vector = self.relu(hidden_vector)
-    prediction_vector = self.fc2(hidden_vector)
+    if x_lens is not None:
+      y_out = column_gather(y_out, x_lens)
+    else:
+      # since batch_first is true, the output of ElmanRNN is of shape (bs, seq_sz, hidden_sz)
+      # this grabs the last hidden vector of each sequence of each batch
+      # so y_out shape goes from (bs, seq_sz, feat_sz) to (bs, feat_sz)
+      y_out = y_out[:, -1, :]
+
+    y_out = self.dropout(y_out)
+    y_out = self.mlp(y_out)
 
     if apply_softmax:
-      prediction_vector = self.softmax(prediction_vector)
+      y_out = self.softmax(y_out)
 
-    return prediction_vector
-
+    return y_out
