@@ -33,7 +33,7 @@ class DataContainer(object):
     self.train_ds = dataset_class.load_data_and_vectorizer_from_file(self.train_df, vectorizer_file)
     self.vectorizer = self.train_ds.vectorizer
     self.surname_vocab = self.vectorizer.surname_vocab
-    self.nationality_vocab= self.vectorizer.nationality_vocab
+    self.nationality_vocab = self.vectorizer.nationality_vocab
     self.train_dl = DataLoader(self.train_ds, self._bs, shuffle=True, drop_last=True)
 
     self.val_ds = dataset_class.load_data_and_vectorizer(self.val_df, self.vectorizer)
