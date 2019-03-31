@@ -42,7 +42,9 @@ class ElmanRNN(nn.Module):
 
     hiddens = []
     if init_hidden is None:
-      init_hidden = self._init_hidden(bs)
+      # remember .to so that newly initialized tensors are placed on the
+      # same device as other tensors
+      init_hidden = self._init_hidden(bs).to(x_in.device)
 
     hidden_t = init_hidden
 
