@@ -5,7 +5,7 @@ import datetime
 from argparse import Namespace
 from pathlib import Path
 
-from ignite.engine import Events, create_supervised_trainer, create_supervised_evaluator
+from ignite.engine import Events
 from ignite.metrics import RunningAverage
 from ignite.handlers import EarlyStopping, ModelCheckpoint, Timer
 from ignite.contrib.handlers import ProgressBar
@@ -49,6 +49,9 @@ class IgniteTrainer(object):
     self.val_dl = dc.val_dl
 
     # create trainers and evaluators
+    # self.trainer = create_supervised_trainer(self.model, self.optimizer, self.loss_fn, device=self.device)
+    # self.train_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device)
+    # self.val_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device)
     self.trainer = custom_trainer(self.model, self.optimizer, self.loss_fn, device=self.device)
     self.train_eval = custom_evaluator(self.model,  metrics=metrics, device=self.device)
     self.val_eval = custom_evaluator(self.model,  metrics=metrics, device=self.device)
