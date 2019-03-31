@@ -19,11 +19,11 @@ consts = Namespace(
     rnn_hidden_sz=64,
     bs=64,
     lr=1e-3,
-    n_epochs=97,
+    n_epochs=100,
     device='cuda:3',
     checkpointer_prefix='elman',
     checkpointer_name='classifier',
-    es_patience=11,
+    es_patience=5,
     save_every=2, # save model every n epochs
     save_total=5, # have total of n models saved
     )

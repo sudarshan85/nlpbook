@@ -49,18 +49,9 @@ class IgniteTrainer(object):
     self.val_dl = dc.val_dl
 
     # create trainers and evaluators
-    # self.trainer = create_supervised_trainer(self.model, self.optimizer, self.loss_fn, device=self.device)
-    # self.train_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device)
-    # self.val_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device)
     self.trainer = custom_trainer(self.model, self.optimizer, self.loss_fn, device=self.device)
     self.train_eval = custom_evaluator(self.model,  metrics=metrics, device=self.device)
     self.val_eval = custom_evaluator(self.model,  metrics=metrics, device=self.device)
-    # self.trainer = create_supervised_trainer(self.model, self.optimizer, self.loss_fn,
-        # device=self.device, prepare_batch=get_batch)
-    # self.train_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device,
-        # prepare_batch=get_batch)
-    # self.val_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device,
-        # prepare_batch=get_batch)
 
     # set loss to be shown in progress bar
     self.pbar = pbar
