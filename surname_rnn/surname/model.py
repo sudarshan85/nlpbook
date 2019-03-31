@@ -2,6 +2,7 @@
 
 import torch
 from torch import nn
+from typing import Tuple
 
 from .elman import ElmanRNN
 
@@ -53,13 +54,14 @@ class SurnameClassifier(nn.Module):
     )
     self.softmax = nn.Softmax(dim=1)
 
-  def forward(self, x_in: torch.Tensor, x_lens: torch.Tensor=None, apply_softmax: bool=False) -> torch.Tensor:
+  def forward(self, x_in: torch.Tensor, x_lens: torch.Tensor=None,
+      apply_softmax: bool=False) -> torch.Tensor:
     """
       The forward pass of the classifier
 
       Args:
-        x_in: input tensor of shape (bs, input_dim)
-        x_lens: lengths of each sequence in the batch used to find the final vector of each sequence
+        model_inp: A tuple contain the input tensor and the lengths of each sequence in the batch
+        used to find the final vector of each sequence
         apply_softmax: flag for softmax activation, should be false when used with nn.CrossEntropy
     """
     x_emb = self.emb(x_in)

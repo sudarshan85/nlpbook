@@ -9,8 +9,21 @@ from ignite.engine import Events, create_supervised_trainer, create_supervised_e
 from ignite.metrics import RunningAverage
 from ignite.handlers import EarlyStopping, ModelCheckpoint, Timer
 from ignite.contrib.handlers import ProgressBar
+from ignite.utils import convert_tensor
 
+from .custom_engine import custom_trainer, custom_evaluator
 from .containers import DataContainer, ModelContainer
+
+def get_batch(batch, device: str=None, non_blocking: bool=False):
+  """
+    Custom function to unpack batch returned by dataset __getitem__
+  """
+  x_in,x_lens,y = batch
+  return (
+      convert_tensor(x_in, device=device, non_blocking=non_blocking),
+      convert_tensor(x_lens, device=device, non_blocking=non_blocking),
+      convert_tensor(y, device=device, non_blocking=non_blocking)
+      )
 
 class IgniteTrainer(object):
   def __init__(self, mc: ModelContainer, dc: DataContainer, consts: Namespace, pbar:
@@ -36,10 +49,15 @@ class IgniteTrainer(object):
     self.val_dl = dc.val_dl
 
     # create trainers and evaluators
-    self.trainer = create_supervised_trainer(self.model, self.optimizer, self.loss_fn,
-        device=self.device)
-    self.train_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device)
-    self.val_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device)
+    self.trainer = custom_trainer(self.model, self.optimizer, self.loss_fn, device=self.device)
+    self.train_eval = custom_evaluator(self.model,  metrics=metrics, device=self.device)
+    self.val_eval = custom_evaluator(self.model,  metrics=metrics, device=self.device)
+    # self.trainer = create_supervised_trainer(self.model, self.optimizer, self.loss_fn,
+        # device=self.device, prepare_batch=get_batch)
+    # self.train_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device,
+        # prepare_batch=get_batch)
+    # self.val_eval = create_supervised_evaluator(self.model,  metrics=metrics, device=self.device,
+        # prepare_batch=get_batch)
 
     # set loss to be shown in progress bar
     self.pbar = pbar

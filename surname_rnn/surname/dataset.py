@@ -46,7 +46,7 @@ class SurnameDataset(Dataset):
       self.max_seq_len))
     nationality_idx = np.asarray(self.vectorizer.nationality_vocab.lookup_token(row['nationality']))
 
-    return (surname_vector, vec_length, nationality_idx)
+    return ((surname_vector, vec_length), nationality_idx)
 
   def __len__(self):
     return len(self.df)
