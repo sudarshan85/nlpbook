@@ -18,9 +18,10 @@ class ElmanRNN(nn.Module):
     self.batch_first = batch_first
     self.hidden_sz = hidden_sz
     self.rnn_cell = nn.RNNCell(inp_sz, hidden_sz)
+    self.device = None
 
   def _init_hidden(self, bs: int) -> torch.Tensor:
-    return torch.zeros((bs, self.hidden_sz))
+    return torch.zeros((bs, self.hidden_sz), device=self.device)
 
   def forward(self, x_in: torch.Tensor, init_hidden: torch.Tensor=None) -> torch.Tensor:
     """
@@ -36,6 +37,8 @@ class ElmanRNN(nn.Module):
           If self.batch_first: hiddens.shape = (bs, seq_sz, hidden_sz)
           Else: x_in.shape = (seq_sz, bs, hidden_sz)
     """
+    # save current device for use later
+    self.device = x_in.device
     bs, seq_sz, feat_sz = x_in.size()
     if self.batch_first:
       x_in = x_in.permute(1, 0, 2)
@@ -44,7 +47,7 @@ class ElmanRNN(nn.Module):
     if init_hidden is None:
       # remember .to so that newly initialized tensors are placed on the
       # same device as other tensors
-      init_hidden = self._init_hidden(bs).to(x_in.device)
+      init_hidden = self._init_hidden(bs)
 
     hidden_t = init_hidden
 
