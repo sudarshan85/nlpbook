@@ -45,9 +45,24 @@ class Vectorizer(object):
         'nationality_vocab': self.nationality_vocab.to_serializable(),
         }
 
-class ElmanVectorizer(Vectorizer):
+class GRUVectorizer(Vectorizer):
+  def __init(self, surname_vocab: Vocabulary, nationality_vocab: Vocabulary) -> None:
+    super(GRUVectorizer, self).__init__(surname_vocab, nationality_vocab)
+
+  def vectorizer(self, surname: str, vector_len: int=-1) -> Tuple[np.ndarray, np.ndarray]:
+    """
+      Vectorizer a surname into a vector of observantions
+    """
+    bos = [self.surname_vocab.bos_idx]
+    eos = [self.surname_vocab.eos_idx]
+    surname_idxs = [self.surname_vocab.lookup_token(char) for char in surname]
+    idxs = bos + surname_idxs + eos
+    seq_len = len(idxs)
+
+
+class ClassificationVectorizer(Vectorizer):
   def __init__(self, surname_vocab: Vocabulary, nationality_vocab: Vocabulary) -> None:
-    super(ElmanVectorizer, self).__init__(surname_vocab, nationality_vocab)
+    super(ClassificationVectorizer, self).__init__(surname_vocab, nationality_vocab)
 
   def vectorize(self, surname: str, vector_len: int) -> Tuple[np.ndarray, int]:
     """

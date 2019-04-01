@@ -8,7 +8,7 @@ import torch
 from pathlib import Path
 from torch.utils.data import Dataset, DataLoader
 
-from .vectorizer import ElmanVectorizer
+from .vectorizer import ClassificationVectorizer
 
 class SurnameDataset(Dataset):
   def __init__(self, df: pd.DataFrame, vectorizer) -> None:
@@ -20,7 +20,7 @@ class SurnameDataset(Dataset):
 
   @classmethod
   def load_data_and_create_vectorizer(cls, df: pd.DataFrame):
-    return cls(df, ElmanVectorizer.from_dataframe(df))
+    return cls(df, ClassificationVectorizer.from_dataframe(df))
 
   @classmethod
   def load_data_and_vectorizer_from_file(cls, df: pd.DataFrame, vectorizer_path: Path):
@@ -38,14 +38,14 @@ class SurnameDataset(Dataset):
   def __len__(self):
     return len(self.df)
 
-class ElmanSurname(SurnameDataset):
-  def __init__(self, df: pd.DataFrame, vectorizer: ElmanVectorizer) -> None:
-    super(ElmanSurname, self).__init__(df, vectorizer)
+class ClassificationDataset(SurnameDataset):
+  def __init__(self, df: pd.DataFrame, vectorizer: ClassificationVectorizer) -> None:
+    super(ClassificationDataset, self).__init__(df, vectorizer)
 
   @staticmethod
-  def load_vectorizer(vectorizer_path: Path) -> ElmanVectorizer:
+  def load_vectorizer(vectorizer_path: Path) -> ClassificationVectorizer:
     with open(vectorizer_path) as fp:
-      return ElmanVectorizer.from_serializable(json.load(fp))
+      return ClassificationVectorizer.from_serializable(json.load(fp))
 
   def __getitem__(self, idx):
     row = self.df.iloc[idx]
