@@ -75,7 +75,16 @@ class GenerationVectorizer(Vectorizer):
       vector_len = seq_len
 
     from_vector = np.empty(vector_len, dtype=np.int64)
+    from_idxs = idxs[:-1]
+    from_vector[:seq_len] = from_idxs
+    from_vector[seq_len:] = self.surname_vocab.mask_idx
 
+    to_vector = np.empty(vector_len, dtype=np.int64)
+    to_idxs = idxs[1:]
+    to_vector[:seq_len] = to_idxs
+    to_vector[seq_len:] = self.surname_vocab.mask_idx
+
+    return from_vector, to_vector
 
 class ClassificationVectorizer(Vectorizer):
   def __init__(self, surname_vocab: Vocabulary, nationality_vocab: Vocabulary) -> None:

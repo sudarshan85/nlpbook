@@ -8,7 +8,7 @@ import torch
 from pathlib import Path
 from torch.utils.data import Dataset, DataLoader
 
-from .vectorizer import ClassificationVectorizer
+from .vectorizer import ClassificationVectorizer, GenerationVectorizer
 
 class SurnameDataset(Dataset):
   def __init__(self, df: pd.DataFrame, vectorizer) -> None:
@@ -37,6 +37,22 @@ class SurnameDataset(Dataset):
 
   def __len__(self):
     return len(self.df)
+
+class GenerationDataset(SurnameDataset):
+  def __init__(self, df: pd.DataFrame, vectorizer: GenerationVectorizer) -> None:
+    super(GenerationDataset, self).__init__(df, vectorizer)
+
+  @staticmethod
+  def load_vectorizer(vectorizer_path: Path) -> ClassificationVectorizer:
+    with open(vectorizer_path) as fp:
+      return GenerationVectorizer.from_serializable(json.load(fp))
+
+  def __getitem__(self, idx):
+    row = self.df.iloc[idx]
+    from_vector, to_vector = self.vectorizer.vectorize(row['surname'], self.max_seq_len)
+    nationality_idx = np.asarray(self.vectorizer.nationality_vocab.lookup_token(row['nationality']))
+
+    return ((from_vector, to_vector), nationality_idx)
 
 class ClassificationDataset(SurnameDataset):
   def __init__(self, df: pd.DataFrame, vectorizer: ClassificationVectorizer) -> None:
