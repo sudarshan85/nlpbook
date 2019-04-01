@@ -12,27 +12,6 @@ class Vectorizer(object):
     self.surname_vocab = surname_vocab
     self.nationality_vocab = nationality_vocab
 
-  def vectorize(self, surname: str, vector_len: int) -> Tuple[np.ndarray, int]:
-    """
-      Args:
-        surname: input surname
-        vector_len: length of the longest surname
-
-      Returns:
-        vectorizerd surname and the sequence length
-    """
-    bos = [self.surname_vocab.bos_idx]
-    eos = [self.surname_vocab.eos_idx]
-    surname_idxs = [self.surname_vocab.lookup_token(char) for char in surname]
-    idxs = bos + surname_idxs + eos
-    seq_len = len(idxs)
-
-    out_vector = np.zeros(vector_len, dtype=np.int64)
-    out_vector[:seq_len] = idxs
-    out_vector[seq_len:] = self.surname_vocab.mask_idx
-
-    return out_vector, seq_len
-
   @classmethod
   def from_dataframe(cls, df: pd.DataFrame):
     """
@@ -66,3 +45,27 @@ class Vectorizer(object):
         'nationality_vocab': self.nationality_vocab.to_serializable(),
         }
 
+class ElmanVectorizer(Vectorizer):
+  def __init__(self, surname_vocab: Vocabulary, nationality_vocab: Vocabulary) -> None:
+    super(ElmanVectorizer, self).__init__(surname_vocab, nationality_vocab)
+
+  def vectorize(self, surname: str, vector_len: int) -> Tuple[np.ndarray, int]:
+    """
+      Args:
+        surname: input surname
+        vector_len: length of the longest surname
+
+      Returns:
+        vectorizerd surname and the sequence length
+    """
+    bos = [self.surname_vocab.bos_idx]
+    eos = [self.surname_vocab.eos_idx]
+    surname_idxs = [self.surname_vocab.lookup_token(char) for char in surname]
+    idxs = bos + surname_idxs + eos
+    seq_len = len(idxs)
+
+    out_vector = np.zeros(vector_len, dtype=np.int64)
+    out_vector[:seq_len] = idxs
+    out_vector[seq_len:] = self.surname_vocab.mask_idx
+
+    return out_vector, seq_len
