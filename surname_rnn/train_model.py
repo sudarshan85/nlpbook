@@ -28,8 +28,8 @@ logger.addHandler(sh)
 if __name__=='__main__':
   logger.info("Loading data...")
   df = pd.read_csv(classify_consts.proc_dataset_csv)
-  dc = DataContainer(df, ClassificationDataset, classify_consts.vectorizer_json, classify_consts.bs, with_test=True,
-      is_load=True)
+  dc = DataContainer(df, ClassificationDataset, classify_consts.vectorizer_json, classify_consts.bs,
+      with_test=True, is_load=True)
 
   try:
       class_weights = torch.load(classify_consts.class_weights_pth)
@@ -54,7 +54,6 @@ if __name__=='__main__':
   pbar = ProgressBar(persist=True)
   metrics = {'accuracy': Accuracy(), 'loss': Loss(loss_fn)}
 
-  classify_consts.n_epochs=2
   logger.info("Running model for {} epochs on device {} with batch size {}"
       .format(classify_consts.n_epochs, classify_consts.device, classify_consts.bs))
   ig = IgniteTrainer(mc, dc, classify_consts, pbar, metrics)

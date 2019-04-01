@@ -45,19 +45,36 @@ class Vectorizer(object):
         'nationality_vocab': self.nationality_vocab.to_serializable(),
         }
 
-class GRUVectorizer(Vectorizer):
+class GenerationVectorizer(Vectorizer):
   def __init(self, surname_vocab: Vocabulary, nationality_vocab: Vocabulary) -> None:
-    super(GRUVectorizer, self).__init__(surname_vocab, nationality_vocab)
+    super(GenerationVectorizer, self).__init__(surname_vocab, nationality_vocab)
 
   def vectorizer(self, surname: str, vector_len: int=-1) -> Tuple[np.ndarray, np.ndarray]:
     """
-      Vectorizer a surname into a vector of observantions
+      Vectorizer a surname into a vector of observantions and targets
+      The outputs are the vectorizerd surname split into two vectors:
+        surname[:-1] and surname[1:]
+      At each timestep, the first vector is the observation and the second vector
+      is the target.
+
+      Args:
+        surname: the surname to be vectorizerd
+        vector_length: an argument for forcing the length of the index vector
+      Returns:
+        a tuple of ndarrays
+        from_vector: the observation vector
+        to_vector: the target vector
     """
     bos = [self.surname_vocab.bos_idx]
     eos = [self.surname_vocab.eos_idx]
     surname_idxs = [self.surname_vocab.lookup_token(char) for char in surname]
     idxs = bos + surname_idxs + eos
     seq_len = len(idxs)
+
+    if vector_len < 0:
+      vector_len = seq_len
+
+    from_vector = np.empty(vector_len, dtype=np.int64)
 
 
 class ClassificationVectorizer(Vectorizer):
