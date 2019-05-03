@@ -38,9 +38,9 @@ class SurnameDataset(Dataset):
   def __len__(self):
     return len(self.df)
 
-class GenerationDataset(SurnameDataset):
+class UnconditionedGenerationDataset(SurnameDataset):
   def __init__(self, df: pd.DataFrame, vectorizer: GenerationVectorizer) -> None:
-    super(GenerationDataset, self).__init__(df, vectorizer)
+    super(UnconditionedGenerationDataset, self).__init__(df, vectorizer)
 
   @staticmethod
   def load_vectorizer(vectorizer_path: Path) -> ClassificationVectorizer:
